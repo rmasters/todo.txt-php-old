@@ -23,9 +23,19 @@ class Task
     private $priority;
     private $contexts = array();
     private $projects = array();
+    private $completed = false;
 
     public function __construct($task) {
         $task = $this->setPriority($task);
+        $this->setCompleted($task);
+        $this->setContexts($task);
+        $this->setProjects($task);
+
+        $this->task = $task;
+    }
+
+    public function getPriority() {
+        return $this->priority;
     }
 
     private function setPriority($task) {
@@ -56,4 +66,64 @@ class Task
         return $task;
     }
 
+    /**
+     * Get the date the task was completed, or false if it has not been yet.
+     * @return false|DateTime
+     */
+    public function getCompleted() {
+        return $this->completed;
+    }
+
+    private function setCompleted($task) {
+        /**
+         * Completed tasks are prefixed with an "x" and the date they were 
+         * completed on.
+         */
+        $completed = "/x ([0-9]{4}-[0-9]{2}-[0-9]{2})/";
+        if (preg_match($completed, $task, $match) == 1) {
+            $this->completed = new DateTime($match[1]);
+        }
+    }
+
+    public function getContexts() {
+        return $this->contexts;
+    }
+
+    private function setContexts($task) {
+        /**
+         * Contexts are given by @context
+         */
+        $context = "/@(.+)/";
+        if (preg_match_all($context, $task, $matches) > 0) {
+            foreach ($matches[1] as $match) {
+                $match = trim($match);
+                if (!in_array($match, $this->contexts)) {
+                    $this->contexts[] = $match;
+                }
+            }
+        }
+    }
+
+    public function getProjects() {
+        return $this->projects;
+    }
+
+    private function setProjects($task) {
+        /**
+         * Projects are designated by +project
+         */
+        $project = "/\+(.+)/";
+        if (preg_match_all($project, $task, $matches) > 0) {
+            foreach ($matches[1] as $match) {
+                $match = trim($match);
+                if (!in_array($match, $this->projects)) {
+                    $this->projects[] = $match;
+                }
+            }
+        }
+    }
+
+    public function getTask() {
+        return $this->task;
+    }
 }
