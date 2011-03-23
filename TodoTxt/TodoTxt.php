@@ -7,12 +7,16 @@
  */
 
 namespace TodoTxt;
+use \ArrayObject;
+use \Exception;
 
 /**
  * TodoTxt file manager, loader and writer.
  */
 class TodoTxt
 {
+    const EOL = "\n";
+
     const TODO_FILE = "todo.txt";
     const DONE_FILE = "done.txt";
     const RECUR_FILE = "recur.txt";
@@ -38,47 +42,56 @@ class TodoTxt
      */
     private function setFiles($dir) {
         if (!is_dir($dir)) {
-            throw new \Exception(sprintf("Cannot open todo directory %s", 
+            throw new Exception(sprintf("Cannot open todo directory %s", 
                 $dir));
         }
 
-        $this->files[TODO_FILE] = "$dir/" . TODO_FILE;
-        $this->files[DONE_FILE] = "$dir/" . DONE_FILE;
-        $this->files[RECUR_FILE] = "$dir/" . RECUR_FILE;
-        $this->files[REPORT_FILE] = "$dir/" . REPORT_FILE;
-        $this->files[TODO_BACKUP] = "$dir/" . TODO_BACKUP;
-        $this->files[DONE_BACKUP] = "$dir/" . DONE_BACKUP;
+        $this->files[self::TODO_FILE] = "$dir/" . self::TODO_FILE;
+        $this->files[self::DONE_FILE] = "$dir/" . self::DONE_FILE;
+        $this->files[self::RECUR_FILE] = "$dir/" . self::RECUR_FILE;
+        $this->files[self::REPORT_FILE] = "$dir/" . self::REPORT_FILE;
+        $this->files[self::TODO_BACKUP] = "$dir/" . self::TODO_BACKUP;
+        $this->files[self::DONE_BACKUP] = "$dir/" . self::DONE_BACKUP;
     }
 
     /**
      * Read a file into lines
      */
     private function getLines($file) {
-        $lines = explode(file_get_contents($file), PHP_EOL);
+        $lines = explode(PHP_EOL, file_get_contents($file));
 
         $array = array();
-        $count = 0;
+        $count = 1;
         foreach ($lines as $line) {
-            if (strlen(trim($lines[$i])) == 0) {
+            if (strlen(trim($line)) == 0) {
                 continue;
             }
             $count++;
             $array[$count] = rtrim($line);
         }
+
+        return $array;
+    }
+
+    /**
+     * Get tasks from the todo file as a TaskList
+     */
+    public function getTasks() {
+        return new TaskList($this->getTaskLines());
     }
 
     /**
      * Get tasks from the todo file
      */
-    public function getTasks() {
-        return $this->getLines($this->files[TODO_FILE]);
+    public function getTaskLines() {
+        return $this->getLines($this->files[self::TODO_FILE]);
     }
 
     /**
      * Get completed tasks
      */
     public function getDone() {
-        return $this->getLines($this->files[DONE_FILE]);
+        return $this->getLines($this->files[self::DONE_FILE]);
     }
 
     /**
@@ -104,16 +117,16 @@ class TodoTxt
      * Write out the tasks
      */
     public function writeTasks($tasks) {
-        $this->writeLines($tasks, $this->files[TODO_FILE], 
-            $this->files[TODO_BACKUP]);
+        $this->writeLines($tasks, $this->files[self::TODO_FILE], 
+            $this->files[self::TODO_BACKUP]);
     }
 
     /**
      * Write out the completed tasks
      */
     public function writeDone($tasks) {
-        $this->writeLines($tasks, $this->files[DONE_FILE], 
-            $this->files[DONE_BACKUP]);
+        $this->writeLines($tasks, $this->files[self::DONE_FILE], 
+            $this->files[self::DONE_BACKUP]);
     }
  
 }
