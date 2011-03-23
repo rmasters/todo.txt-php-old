@@ -12,6 +12,8 @@ include:
 * and a page that retrieves a todo.txt directory from Dropbox and displays
   statistics from it.
 
+Check out TODO.markdown for the roadmap.
+
 [1]: https://github.com/ginatrapani
 [2]: https://github.com/ginatrapani/todo.txt-cli
 [3]: https://github.com/lydgate
